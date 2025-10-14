@@ -9,67 +9,68 @@
 <!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-<!-- Utilities for DDC -->
-<script type="text/javascript" src="util/messagingUtil.js"></script>
-<script type="text/javascript" src="util/contentUtil.js"></script>
+<!-- CSS per rimuovere lo scroll e adattare l’immagine -->
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* niente scroll né orizzontale né verticale */
+  }
+
+  #photo {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;      /* centra verticalmente l’immagine */
+    justify-content: center;  /* centra orizzontalmente l’immagine */
+    overflow: hidden;
+  }
+
+  #photo img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain; /* mantiene proporzioni senza tagliare */
+    display: block;
+  }
+</style>
 </head>
 <body>
-<!-- Container for Photo -->
-<div class="container" id="photo">
+<!-- Container per la foto -->
+<div class="container-fluid p-0" id="photo">
 </div>
 
-<!-- Custom JavaScript -->
+<!-- JavaScript -->
 <script>
-
-// Listening for HTML document completely loaded and parsed, best practice
 document.addEventListener("DOMContentLoaded", function() {
 
+  // Simulazione dati se non arriva niente da VA
+  const vaMessage = {
+    rowCount: 1,
+    data: [["000000997"]]
+  };
 
-/******************************* Declare variables ***************************************/
+  onDataReceived(vaMessage);
 
-// Dynamic data variables
-let vaMessage; // Data message from VA
-let rowCount; // Number of rows passed from VA
+  function onDataReceived(messageFromVA) {
+    const photoDiv = document.getElementById("photo");
+    photoDiv.innerHTML = "";
 
-// Selection variables
-let photoDiv; // Div for photo
-let itemPhoto; // Element for photo
+    const itemPhoto = document.createElement("img");
 
-/******************************* Setup Callback Functions ***************************************/
-// Attach event for data message from VA
-va.messagingUtil.setOnDataReceivedCallback(onDataReceived);
+    if (messageFromVA.rowCount === 1) {
+      itemPhoto.src = "images/" + messageFromVA.data[0][0].toLowerCase() + ".jpg";
+      itemPhoto.alt = messageFromVA.data[0][0];
+    } else {
+      itemPhoto.src = "images/000000997.jpg";
+      itemPhoto.alt = "000000997.jpg";
+    }
 
-// Take action on received data
-function onDataReceived(messageFromVA) {
-
-// Initialize data variables
-vaMessage = messageFromVA;
-rowCount = messageFromVA.rowCount;
-
-// Add photo to DOM
-const photoDiv = document.getElementById("photo");
-photoDiv.innerText = "";
-
-// Display photo for selected item
-if (
-rowCount == 1
-) {
-itemPhoto = document.createElement("img");
-itemPhoto.src="images/"+vaMessage.data[0][0].toLowerCase()+".jpg"; // check this!
-itemPhoto.alt = vaMessage.data[0][0];
-itemPhoto.classList.add("img-fluid");
-
-photoDiv.appendChild(itemPhoto);
-} else {
-itemPhoto = document.createElement("img");
-itemPhoto.src="images/000000997.jpg";
-itemPhoto.alt = "000000997.jpg";
-itemPhoto.classList.add("img-fluid");
-
-photoDiv.appendChild(itemPhoto);
-};
-
-};
+    photoDiv.appendChild(itemPhoto);
+  }
 
 });
 </script>
